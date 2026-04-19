@@ -1,4 +1,4 @@
-"use server";
+/*"use server";
 
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
@@ -39,6 +39,23 @@ export async function submitResponse(formData: FormData) {
       responseText,
     },
   });
+
+  revalidatePath("/today");
+}*/
+
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { createResponseForDelivery } from "@/lib/response-service";
+
+export async function submitResponse(formData: FormData) {
+  const deliveryIdValue = formData.get("deliveryId");
+  const responseTextValue = formData.get("responseText");
+
+  const deliveryId = Number(deliveryIdValue);
+  const responseText = responseTextValue?.toString() ?? "";
+
+  await createResponseForDelivery(deliveryId, responseText);
 
   revalidatePath("/today");
 }
