@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int                @id @default(autoincrement())
+  email              String             @unique
+  passwordHash       String             @map("password_hash")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  questionDeliveries QuestionDelivery[]
+  responses          Response[]
+
+  @@map("users")
+}
+
+model Question {
+  id                 Int                @id @default(autoincrement())
+  text               String
+  category           String
+  depthLevel         Int                @map("depth_level")
+  isActive           Boolean            @default(true) @map("is_active")
+  canReappear        Boolean            @default(false) @map("can_reappear")
+  reappearAfterDays  Int?               @map("reappear_after_days")
+  firstPhaseAllowed  Boolean            @default(false) @map("first_phase_allowed")
+  createdAt          DateTime           @default(now()) @map("created_at")
+  updatedAt          DateTime           @updatedAt @map("updated_at")
+
+  questionDeliveries QuestionDelivery[]
+  responses          Response[]
+
+  @@index([category])
+  @@index([depthLevel])
+  @@index([isActive])
+  @@map("questions")
+}
+
+model QuestionDelivery {
+  id          Int                  @id @default(autoincrement())
+  userId      Int                  @map("user_id")
+  questionId  Int                  @map("question_id")
+  deliveredAt DateTime             @default(now()) @map("delivered_at")
+  expiresAt   DateTime?            @map("expires_at")
+  status      String
+
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question    Question             @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  response    Response?
+
+  @@index([userId])
+  @@index([questionId])
+  @@index([status])
+  @@index([deliveredAt])
+  @@map("question_deliveries")
+}
+
+model Response {
+  id           Int               @id @default(autoincrement())
+  userId       Int               @map("user_id")
+  questionId   Int               @map("question_id")
+  deliveryId   Int               @unique @map("delivery_id")
+  responseText String            @map("response_text")
+  submittedAt  DateTime          @default(now()) @map("submitted_at")
+
+  user         User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question     Question          @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  delivery     QuestionDelivery  @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([questionId])
+  @@index([submittedAt])
+  @@map("responses")
+}
