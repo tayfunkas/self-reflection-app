@@ -88,11 +88,11 @@ export async function getOrCreateTodayDelivery(userId: number) {
 
 import prisma from "@/lib/prisma";
 
-const TEST_USER_EMAIL = "test@example.com";
+//const TEST_USER_EMAIL = "test@example.com";
 const ONBOARDING_RESPONSE_LIMIT = 5;
 const EXPIRED_COOLDOWN_DAYS = 40;
 
-export async function getTestUser() {
+/*export async function getTestUser() {
   const user = await prisma.user.findUnique({
     where: {
       email: TEST_USER_EMAIL,
@@ -104,7 +104,7 @@ export async function getTestUser() {
   }
 
   return user;
-}
+}*/
 
 function getTodayBounds() {
   const startOfToday = new Date();

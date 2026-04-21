@@ -43,7 +43,7 @@ export async function submitResponse(formData: FormData) {
   revalidatePath("/today");
 }*/
 
-"use server";
+/*"use server";
 
 import { revalidatePath } from "next/cache";
 import { createResponseForDelivery } from "@/lib/response-service";
@@ -54,6 +54,50 @@ export async function submitResponse(formData: FormData) {
 
   const deliveryId = Number(deliveryIdValue);
   const responseText = responseTextValue?.toString() ?? "";
+
+  await createResponseForDelivery(deliveryId, responseText);
+
+  revalidatePath("/today");
+}*/
+
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { auth } from "../../../auth";
+import { createResponseForDelivery } from "@/lib/response-service";
+import prisma from "@/lib/prisma";
+
+export async function submitResponse(formData: FormData) {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const deliveryIdValue = formData.get("deliveryId");
+  const responseTextValue = formData.get("responseText");
+
+  const deliveryId = Number(deliveryIdValue);
+  const responseText = responseTextValue?.toString() ?? "";
+  const userId = Number(session.user.id);
+
+  if (!Number.isInteger(deliveryId) || deliveryId <= 0) {
+    throw new Error("Invalid delivery id");
+  }
+
+  const delivery = await prisma.questionDelivery.findUnique({
+    where: { id: deliveryId },
+    select: { userId: true },
+  });
+
+  if (!delivery) {
+    throw new Error("Delivery not found");
+  }
+
+  if (delivery.userId !== userId) {
+    throw new Error("Unauthorized");
+  }
 
   await createResponseForDelivery(deliveryId, responseText);
 

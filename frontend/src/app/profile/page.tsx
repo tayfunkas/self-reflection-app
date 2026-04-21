@@ -1,34 +1,6 @@
-/*export default function ProfilePage() {
-    return (
-      <main className="mx-auto max-w-3xl px-6 py-16">
-        <div className="rounded-3xl border border-[#E7D8C8] bg-[#FFF9F4] p-8 md:p-10">
-          <p className="mb-3 text-sm uppercase tracking-[0.16em] text-[#7A6E63]">
-            Profile
-          </p>
-  
-          <h1 className="mb-6 text-3xl font-semibold">Your space</h1>
-  
-          <div className="space-y-4 text-[15px] leading-7 text-[#5F554D]">
-            <p>This area can later include:</p>
-  
-            <ul className="list-disc space-y-2 pl-5">
-              <li>email and account details</li>
-              <li>reflection preferences</li>
-              <li>question frequency or phases</li>
-              <li>privacy settings</li>
-            </ul>
-  
-            <p className="pt-2 text-sm text-[#7A6E63]">
-              For now, this is a simple placeholder page.
-            </p>
-          </div>
-        </div>
-      </main>
-    );
-  }*/
-
+import { redirect } from "next/navigation";
+import { auth } from "../../../auth";
 import prisma from "@/lib/prisma";
-import { getTestUser } from "@/lib/question-delivery";
 
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-US", {
@@ -39,11 +11,17 @@ function formatDate(date: Date) {
 }
 
 export default async function ProfilePage() {
-  const user = await getTestUser();
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const userId = Number(session.user.id);
 
   const responses = await prisma.response.findMany({
     where: {
-      userId: user.id,
+      userId,
     },
     include: {
       question: true,
@@ -81,7 +59,7 @@ export default async function ProfilePage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <ProfileField label="Email" value={user.email} />
+            <ProfileField label="Email" value={session.user.email ?? ""} />
             <ProfileField label="Name" value="Not added yet" muted />
             <ProfileField label="Country" value="Not added yet" muted />
             <ProfileField label="City" value="Not added yet" muted />
