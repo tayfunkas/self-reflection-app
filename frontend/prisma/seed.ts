@@ -1,4 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+/// <reference types="node" />
+
+import { PrismaClient } from "../src/generated/prisma";
 import { questions } from "./data/questions";
 
 const prisma = new PrismaClient();

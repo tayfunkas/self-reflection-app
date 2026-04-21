@@ -6,6 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -14,18 +15,30 @@ datasource db {
 }
 
 model User {
-  id                 Int                @id @default(autoincrement())
-  email              String             @unique
-  emailVerified      DateTime?          @map("email_verified")
-  passwordHash       String?            @map("password_hash")
-  createdAt          DateTime           @default(now()) @map("created_at")
-  updatedAt          DateTime           @updatedAt @map("updated_at")
+  id                  Int                @id @default(autoincrement())
+  email               String             @unique
+  emailVerified       DateTime?          @map("email_verified")
+  passwordHash        String?            @map("password_hash")
 
-  accounts           Account[]
-  sessions           Session[]
+  name                String?
+  city                String?
+  countryCode         String?            @map("country_code")
+  timezone            String             @default("UTC")
 
-  questionDeliveries QuestionDelivery[]
-  responses          Response[]
+  language            String             @default("en")
+
+  marketingEmails     Boolean            @default(false) @map("marketing_emails")
+  dailyQuestionEmails Boolean            @default(true) @map("daily_question_emails")
+  dailyReflectionTime String             @default("00:00") @map("daily_reflection_time")
+
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+
+  accounts            Account[]
+  sessions            Session[]
+
+  questionDeliveries  QuestionDelivery[]
+  responses           Response[]
 
   @@map("users")
 }
