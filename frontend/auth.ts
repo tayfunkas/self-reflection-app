@@ -73,7 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 });*/
 
-import NextAuth from "next-auth";
+/*import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
@@ -211,7 +211,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return session;
     },
   },
-});
+});*/
 
 /*import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
@@ -239,3 +239,89 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login",
   },
 });*/
+
+import NextAuth from "next-auth";
+import Credentials from "next-auth/providers/credentials";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import bcrypt from "bcryptjs";
+
+import prisma from "@/lib/prisma";
+
+export const {
+  handlers: { GET, POST },
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
+  adapter: PrismaAdapter(prisma),
+  session: {
+    strategy: "jwt",
+  },
+  providers: [
+    Credentials({
+      name: "Email and Password",
+      credentials: {
+        email: {
+          label: "Email",
+          type: "email",
+        },
+        password: {
+          label: "Password",
+          type: "password",
+        },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email?.toString().trim().toLowerCase();
+        const password = credentials?.password?.toString();
+
+        if (!email || !password) {
+          return null;
+        }
+
+        const user = await prisma.user.findUnique({
+          where: { email },
+        });
+
+        if (!user || !user.passwordHash) {
+          return null;
+        }
+
+        const passwordMatches = await bcrypt.compare(password, user.passwordHash);
+
+        if (!passwordMatches) {
+          return null;
+        }
+
+        return {
+          id: String(user.id),
+          email: user.email,
+          name: user.name,
+          emailVerified: user.emailVerified,
+        };
+      },
+    }),
+  ],
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        token.emailVerified = user.emailVerified ?? null;
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.id = String(token.id ?? "");
+        session.user.emailVerified =
+          token.emailVerified instanceof Date ? token.emailVerified : null;
+      }
+
+      return session;
+    },
+  },
+});
