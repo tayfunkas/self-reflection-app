@@ -151,8 +151,10 @@ export default async function TodayPage() {
         </h1>
 
         <p className="mb-8 text-sm text-[#9A7D68]">
-          There is no right way to answer. Just begin where you are.
-        </p>
+  {delivery.response
+    ? "Come back tomorrow for a new question. Have a gentle day."
+    : "There is no right way to answer. Just begin where you are."}
+</p>
 
         {delivery.response ? (
           <div className="rounded-[22px] bg-[#F6EEE3] px-5 py-5">

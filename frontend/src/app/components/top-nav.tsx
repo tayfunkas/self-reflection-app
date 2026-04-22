@@ -87,7 +87,7 @@ export default async function TopNav() {
           href={isLoggedIn ? "/today" : "/"}
           className="text-base font-medium tracking-[0.04em] text-[#7A5C49]"
         >
-          Self Reflection
+          WithinYou
         </Link>
 
         <div className="flex items-center gap-3">
