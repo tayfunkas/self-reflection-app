@@ -98,6 +98,7 @@ import { LoginForm } from "./login-form";
 type LoginPageProps = {
   searchParams: Promise<{
     verified?: string;
+    passwordReset?: string;
   }>;
 };
 
@@ -108,7 +109,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     redirect("/today");
   }
 
-  const { verified } = await searchParams;
+  const { verified, passwordReset } = await searchParams;
 
   return (
     <main className="mx-auto flex min-h-[calc(100vh-73px)] max-w-md items-center px-6 py-16">
@@ -131,12 +132,23 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </p>
         ) : null}
 
+        {passwordReset === "1" ? (
+          <p className="mb-5 rounded-2xl border border-[#D8E7D1] bg-[#F4FAF1] px-4 py-3 text-sm text-[#4E6B43]">
+            Your password has been updated. You can now log in.
+          </p>
+        ) : null}
+
         <LoginForm />
 
         <p className="mt-6 text-sm text-[#6F6257]">
           Don&apos;t have an account?{" "}
           <Link href="/signup" className="underline underline-offset-4">
             Create account
+          </Link>
+        </p>
+        <p className="mt-4 text-sm text-[#6F6257]">
+          <Link href="/forgot-password" className="underline underline-offset-4">
+            Forgot your password?
           </Link>
         </p>
       </section>

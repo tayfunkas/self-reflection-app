@@ -70,47 +70,47 @@ export default async function ProfilePage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-12">
       <div className="mb-10">
-  <p className="mb-3 text-sm uppercase tracking-[0.12em] text-[#9A7D68]">
-    Profile
-  </p>
+        <p className="mb-3 text-sm uppercase tracking-[0.12em] text-[#9A7D68]">
+          Profile
+        </p>
 
-  <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
-    <div className="max-w-2xl">
-      <h1 className="text-3xl font-medium text-[#6A4F3D]">
-        Your space
-      </h1>
+        <div className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
+          <div className="max-w-2xl">
+            <h1 className="text-3xl font-medium text-[#6A4F3D]">
+              Your space
+            </h1>
 
-      <p className="mt-3 text-[16px] leading-7 text-[#705847]">
-        This is where account details, reflection history, and personal
-        preferences can live together in one quiet place.
-      </p>
-    </div>
+            <p className="mt-3 text-[16px] leading-7 text-[#705847]">
+              This is where account details, reflection history, and personal
+              preferences can live together in one quiet place.
+            </p>
+          </div>
 
-    <div className="shrink-0 self-start md:ml-8">
-      <Image
-        src="/logo-withinyou.png"
-        alt="WithinYou"
-        width={180}
-        height={180}
-        className="h-auto w-[90px] md:w-[110px] opacity-90"
-      />
-    </div>
-  </div>
-</div>
+          <div className="shrink-0 self-start md:ml-8">
+            <Image
+              src="/logo-withinyou.png"
+              alt="WithinYou"
+              width={180}
+              height={180}
+              className="h-auto w-[90px] md:w-[110px] opacity-90"
+            />
+          </div>
+        </div>
+      </div>
 
       <div className="grid gap-6">
-      <ProfileForm
-  key={`${user?.countryCode ?? ""}-${user?.dailyReflectionTime ?? ""}-${user?.dailyQuestionEmails ?? false}-${user?.marketingEmails ?? false}-${user?.language ?? "en"}-${user?.timezone ?? "UTC"}`}
-  email={user?.email ?? session.user.email ?? ""}
-  name={user?.name ?? null}
-  city={user?.city ?? null}
-  countryCode={user?.countryCode ?? null}
-  timezone={user?.timezone ?? "UTC"}
-  language={user?.language ?? "en"}
-  marketingEmails={user?.marketingEmails ?? false}
-  dailyQuestionEmails={user?.dailyQuestionEmails ?? true}
-  dailyReflectionTime={user?.dailyReflectionTime ?? "00:00"}
-/>
+        <ProfileForm
+          key={`${user?.countryCode ?? ""}-${user?.dailyReflectionTime ?? ""}-${user?.dailyQuestionEmails ?? false}-${user?.marketingEmails ?? false}-${user?.language ?? "en"}-${user?.timezone ?? "UTC"}`}
+          email={user?.email ?? session.user.email ?? ""}
+          name={user?.name ?? null}
+          city={user?.city ?? null}
+          countryCode={user?.countryCode ?? null}
+          timezone={user?.timezone ?? "UTC"}
+          language={user?.language ?? "en"}
+          marketingEmails={user?.marketingEmails ?? false}
+          dailyQuestionEmails={user?.dailyQuestionEmails ?? true}
+          dailyReflectionTime={user?.dailyReflectionTime ?? "00:00"}
+        />
 
         <section className="rounded-[28px] bg-[#FBF6F0] px-7 py-8 md:px-10 md:py-10">
           <div className="mb-6 flex items-center justify-between gap-4">
@@ -180,11 +180,16 @@ export default async function ProfilePage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <ProfileField
-              label="Password"
-              value="Available after authentication"
-              muted
-            />
+            <div className="rounded-2xl border border-[#E8D9CC] bg-[#FFFDFC] px-5 py-4">
+              <p className="text-sm text-[#9A7D68]">Password</p>
+
+              <Link
+                href="/password-change"
+                className="mt-3 inline-block text-sm text-[#8B6B57] underline underline-offset-4"
+              >
+                Change password
+              </Link>
+            </div>
             <ProfileField
               label="Timezone"
               value={user?.timezone ?? "UTC"}
@@ -210,9 +215,8 @@ function ProfileField({
     <div className="rounded-2xl border border-[#E8D9CC] bg-[#FFFDFC] px-5 py-4">
       <p className="text-sm text-[#9A7D68]">{label}</p>
       <p
-        className={`mt-2 text-[16px] leading-7 ${
-          muted ? "text-[#A08A79]" : "text-[#705847]"
-        }`}
+        className={`mt-2 text-[16px] leading-7 ${muted ? "text-[#A08A79]" : "text-[#705847]"
+          }`}
       >
         {value}
       </p>

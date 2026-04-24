@@ -241,5 +241,5 @@ export async function signup(
   const verificationToken = await createEmailVerificationToken(email);
   await sendVerificationEmail(email, verificationToken.token);
 
-  redirect(`/verify-email/sent?email=${encodeURIComponent(email)}`);
+  redirect(`/check-inbox?email=${encodeURIComponent(email)}`);
 }
