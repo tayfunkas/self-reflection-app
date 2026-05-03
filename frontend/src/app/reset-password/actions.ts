@@ -8,6 +8,10 @@ import {
   getEmailFromPasswordResetIdentifier,
   isPasswordResetIdentifier,
 } from "@/lib/password-reset-token";
+import {
+  resetPasswordRateLimit,
+  getRateLimitIdentifier,
+} from "@/lib/rate-limit";
 
 function resetError(token: string, message: string) {
   redirect(
@@ -17,12 +21,24 @@ function resetError(token: string, message: string) {
   );
 }
 
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 72;
+const MAX_TOKEN_LENGTH = 255;
+
 export async function resetPassword(formData: FormData) {
-  const token = formData.get("token")?.toString() ?? "";
+
+  const identifier = await getRateLimitIdentifier("reset-password");
+  const { success } = await resetPasswordRateLimit.limit(identifier);
+
+  if (!success) {
+    redirect("/forgot-password?sent=1");
+  }
+
+  const token = formData.get("token")?.toString().trim() ?? "";
   const password = formData.get("password")?.toString() ?? "";
   const confirmPassword = formData.get("confirmPassword")?.toString() ?? "";
 
-  if (!token) {
+  if (!token || token.length > MAX_TOKEN_LENGTH) {
     redirect("/forgot-password?sent=1");
   }
 
@@ -30,8 +46,12 @@ export async function resetPassword(formData: FormData) {
     resetError(token, "Please fill in all fields.");
   }
 
-  if (password.length < 8) {
+  if (password.length < MIN_PASSWORD_LENGTH) {
     resetError(token, "Password must be at least 8 characters.");
+  }
+
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    resetError(token, "Password is too long.");
   }
 
   if (password !== confirmPassword) {

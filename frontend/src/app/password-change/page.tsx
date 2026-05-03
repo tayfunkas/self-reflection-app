@@ -60,6 +60,7 @@ export default async function PasswordChangePage({
                             name="currentPassword"
                             type="password"
                             required
+                            maxLength={72}
                             className="mt-2 w-full rounded-xl border border-[#E8D9CC] bg-[#FFFDFC] px-4 py-3 text-[#705847] outline-none"
                         />
                     </div>
@@ -70,6 +71,8 @@ export default async function PasswordChangePage({
                             name="newPassword"
                             type="password"
                             required
+                            minLength={8}
+                            maxLength={72}
                             className="mt-2 w-full rounded-xl border border-[#E8D9CC] bg-[#FFFDFC] px-4 py-3 text-[#705847] outline-none"
                         />
                     </div>
@@ -82,6 +85,8 @@ export default async function PasswordChangePage({
                             name="confirmPassword"
                             type="password"
                             required
+                            minLength={8}
+                            maxLength={72}
                             className="mt-2 w-full rounded-xl border border-[#E8D9CC] bg-[#FFFDFC] px-4 py-3 text-[#705847] outline-none"
                         />
                     </div>

@@ -40,6 +40,7 @@ export default async function ForgotPasswordPage({
               name="email"
               type="email"
               required
+              maxLength={254}
               className="mt-2 w-full rounded-xl border border-[#E8D9CC] bg-[#FFFDFC] px-4 py-3 text-[#705847] outline-none"
             />
           </div>

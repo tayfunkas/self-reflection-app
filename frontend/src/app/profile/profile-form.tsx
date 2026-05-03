@@ -588,6 +588,7 @@ export default function ProfileForm({
                 name="name"
                 defaultValue={name ?? ""}
                 placeholder="Add your name"
+                maxLength={80}
                 className="mt-2 w-full rounded-xl border border-[#E8D9CC] bg-[#FFFDFC] px-4 py-3 text-[#705847] outline-none"
               />
             </Field>
@@ -613,6 +614,7 @@ export default function ProfileForm({
                 name="city"
                 defaultValue={city ?? ""}
                 placeholder="Add your city"
+                maxLength={80}
                 className="mt-2 w-full rounded-xl border border-[#E8D9CC] bg-[#FFFDFC] px-4 py-3 text-[#705847] outline-none"
               />
             </Field>

@@ -1,226 +1,4 @@
-"use server";
-
-/*import { revalidatePath } from "next/cache";
-import { auth } from "../../../auth";
-import prisma from "@/lib/prisma";
-
-export async function updateProfile(formData: FormData) {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  const userId = Number(session.user.id);
-
-  const name = formData.get("name")?.toString().trim() || null;
-  const city = formData.get("city")?.toString().trim() || null;
-  const countryCode = formData.get("countryCode")?.toString() || null;
-  const language = formData.get("language")?.toString() || "en";
-  const timezone = formData.get("timezone")?.toString() || "UTC";
-  const dailyReflectionTime =
-    formData.get("dailyReflectionTime")?.toString() || "00:00";
-
-  const marketingEmails = formData.get("marketingEmails") === "on";
-  const dailyQuestionEmails = formData.get("dailyQuestionEmails") === "on";
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      name,
-      city,
-      countryCode,
-      language,
-      timezone,
-      dailyReflectionTime,
-      marketingEmails,
-      dailyQuestionEmails,
-    },
-  });
-
-  revalidatePath("/profile");
-}*/
-
 /*"use server";
-
-import { revalidatePath } from "next/cache";
-import { auth } from "../../../auth";
-import prisma from "@/lib/prisma";
-
-function isValidHourTime(value: string | null | undefined) {
-  if (!value) return false;
-  return /^([01]\d|2[0-3]):00$/.test(value);
-}
-
-export async function updateProfile(formData: FormData) {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  const userId = Number(session.user.id);
-
-  const currentUser = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      name: true,
-      city: true,
-      countryCode: true,
-      timezone: true,
-      language: true,
-      marketingEmails: true,
-      dailyQuestionEmails: true,
-      dailyReflectionTime: true,
-    },
-  });
-
-  if (!currentUser) {
-    throw new Error("User not found");
-  }
-
-  const rawName = formData.get("name")?.toString().trim();
-  const rawCity = formData.get("city")?.toString().trim();
-  const rawCountryCode = formData.get("countryCode")?.toString().trim();
-  const rawLanguage = formData.get("language")?.toString().trim();
-  const rawTimezone = formData.get("timezone")?.toString().trim();
-  const rawDailyReflectionTime = formData
-    .get("dailyReflectionTime")
-    ?.toString()
-    .trim();
-
-  const marketingEmails = formData.get("marketingEmails") === "on";
-  const dailyQuestionEmails = formData.get("dailyQuestionEmails") === "on";
-
-  const name = rawName ? rawName : null;
-  const city = rawCity ? rawCity : null;
-  const countryCode = rawCountryCode ? rawCountryCode.toUpperCase() : null;
-  const language = rawLanguage || currentUser.language || "en";
-  const timezone = rawTimezone || currentUser.timezone || "UTC";
-
-  const dailyReflectionTime = isValidHourTime(rawDailyReflectionTime)
-    ? rawDailyReflectionTime
-    : currentUser.dailyReflectionTime || "00:00";
-
-  console.log("PROFILE FORM DATA:", Object.fromEntries(formData.entries()));
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      name,
-      city,
-      countryCode,
-      language,
-      timezone,
-      marketingEmails,
-      dailyQuestionEmails,
-      dailyReflectionTime,
-    },
-  });
-
-  revalidatePath("/profile");
-}*/
-
-/*"use server";
-
-import { revalidatePath } from "next/cache";
-import { auth } from "../../../auth";
-import prisma from "@/lib/prisma";
-
-function isValidCountryCode(value: string | null | undefined) {
-  return !!value && /^[A-Z]{2}$/.test(value);
-}
-
-function isValidHourTime(value: string | null | undefined) {
-  return !!value && /^([01]\d|2[0-3]):00$/.test(value);
-}
-
-async function getUserId() {
-  const session = await auth();
-
-  if (!session?.user?.id) {
-    throw new Error("Unauthorized");
-  }
-
-  return Number(session.user.id);
-}
-
-export async function updateProfileBasics(formData: FormData) {
-  const userId = await getUserId();
-
-  const rawName = formData.get("name")?.toString().trim() || "";
-  const rawCity = formData.get("city")?.toString().trim() || "";
-  const rawCountryCode = formData.get("countryCode")?.toString().trim() || "";
-
-  const name = rawName || null;
-  const city = rawCity || null;
-  const countryCode = isValidCountryCode(rawCountryCode)
-    ? rawCountryCode.toUpperCase()
-    : null;
-
-  console.log("PROFILE BASICS FORM DATA:", Object.fromEntries(formData.entries()));
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      name,
-      city,
-      countryCode,
-    },
-  });
-
-  revalidatePath("/profile");
-}
-
-export async function updatePreferences(formData: FormData) {
-  const userId = await getUserId();
-
-  const currentUser = await prisma.user.findUnique({
-    where: { id: userId },
-    select: {
-      timezone: true,
-      language: true,
-      dailyReflectionTime: true,
-    },
-  });
-
-  if (!currentUser) {
-    throw new Error("User not found");
-  }
-
-  const rawTimezone = formData.get("timezone")?.toString().trim() || "";
-  const rawLanguage = formData.get("language")?.toString().trim() || "";
-  const rawDailyReflectionTime =
-    formData.get("dailyReflectionTime")?.toString().trim() || "";
-
-  const marketingEmails = formData.get("marketingEmails") === "on";
-  const dailyQuestionEmails = formData.get("dailyQuestionEmails") === "on";
-
-  const timezone = rawTimezone || currentUser.timezone || "UTC";
-  const language = rawLanguage || currentUser.language || "en";
-
-  const dailyReflectionTime =
-    dailyQuestionEmails && isValidHourTime(rawDailyReflectionTime)
-      ? rawDailyReflectionTime
-      : "00:00";
-
-  console.log("PREFERENCES FORM DATA:", Object.fromEntries(formData.entries()));
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      timezone,
-      language,
-      marketingEmails,
-      dailyQuestionEmails,
-      dailyReflectionTime,
-    },
-  });
-
-  revalidatePath("/profile");
-}*/
-
-"use server";
 
 import { refresh } from "next/cache";
 import { auth } from "../../../auth";
@@ -291,6 +69,129 @@ export async function updatePreferences(formData: FormData) {
     data: {
       timezone: rawTimezone,
       language: rawLanguage,
+      marketingEmails,
+      dailyQuestionEmails,
+      dailyReflectionTime,
+    },
+  });
+
+  redirect("/profile");
+}*/
+
+"use server";
+
+import { auth } from "../../../auth";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
+
+const MAX_NAME_LENGTH = 80;
+const MAX_CITY_LENGTH = 80;
+
+const ALLOWED_COUNTRY_CODES = ["DE", "TR", "EE", "GB", "US"];
+const ALLOWED_LANGUAGES = ["en"];
+
+function cleanText(value: FormDataEntryValue | null, maxLength: number) {
+  if (typeof value !== "string") return null;
+
+  const cleaned = value.trim();
+
+  if (!cleaned) return null;
+
+  if (cleaned.length > maxLength) {
+    throw new Error("Input is too long");
+  }
+
+  return cleaned;
+}
+
+function isValidCountryCode(value: string | null | undefined) {
+  return !!value && ALLOWED_COUNTRY_CODES.includes(value.toUpperCase());
+}
+
+function isValidHourTime(value: string | null | undefined) {
+  return !!value && /^([01]\d|2[0-3]):00$/.test(value);
+}
+
+function isValidTimezone(value: string | null | undefined) {
+  if (!value) return false;
+
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function isValidLanguage(value: string | null | undefined) {
+  return !!value && ALLOWED_LANGUAGES.includes(value);
+}
+
+async function getUserId() {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const userId = Number(session.user.id);
+
+  if (!Number.isInteger(userId) || userId <= 0) {
+    redirect("/login");
+  }
+
+  return userId;
+}
+
+export async function updateProfileBasics(formData: FormData) {
+  const userId = await getUserId();
+
+  const name = cleanText(formData.get("name"), MAX_NAME_LENGTH);
+  const city = cleanText(formData.get("city"), MAX_CITY_LENGTH);
+
+  const rawCountryCode =
+    formData.get("countryCode")?.toString().trim().toUpperCase() || "";
+
+  const countryCode = isValidCountryCode(rawCountryCode)
+    ? rawCountryCode
+    : null;
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      name,
+      city,
+      countryCode,
+    },
+  });
+
+  redirect("/profile");
+}
+
+export async function updatePreferences(formData: FormData) {
+  const userId = await getUserId();
+
+  const rawTimezone = formData.get("timezone")?.toString().trim() || "UTC";
+  const rawLanguage = formData.get("language")?.toString().trim() || "en";
+  const rawDailyReflectionTime =
+    formData.get("dailyReflectionTime")?.toString().trim() || "";
+
+  const timezone = isValidTimezone(rawTimezone) ? rawTimezone : "UTC";
+  const language = isValidLanguage(rawLanguage) ? rawLanguage : "en";
+
+  const marketingEmails = formData.get("marketingEmails") === "on";
+  const dailyQuestionEmails = formData.get("dailyQuestionEmails") === "on";
+
+  const dailyReflectionTime =
+    dailyQuestionEmails && isValidHourTime(rawDailyReflectionTime)
+      ? rawDailyReflectionTime
+      : "00:00";
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: {
+      timezone,
+      language,
       marketingEmails,
       dailyQuestionEmails,
       dailyReflectionTime,

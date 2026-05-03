@@ -27,6 +27,7 @@ export function SignupForm() {
           type="email"
           autoComplete="email"
           required
+          maxLength={254}
           className="w-full rounded-2xl border border-[#E3D7CD] bg-white px-4 py-3 text-sm text-[#3B342E] outline-none transition placeholder:text-[#9A8F85] focus:border-[#C9825B]"
           placeholder="you@example.com"
         />
@@ -46,6 +47,7 @@ export function SignupForm() {
           autoComplete="new-password"
           required
           minLength={8}
+          maxLength={72}
           className="w-full rounded-2xl border border-[#E3D7CD] bg-white px-4 py-3 text-sm text-[#3B342E] outline-none transition placeholder:text-[#9A8F85] focus:border-[#C9825B]"
           placeholder="At least 8 characters"
         />
@@ -65,6 +67,7 @@ export function SignupForm() {
           autoComplete="new-password"
           required
           minLength={8}
+          maxLength={72}
           className="w-full rounded-2xl border border-[#E3D7CD] bg-white px-4 py-3 text-sm text-[#3B342E] outline-none transition placeholder:text-[#9A8F85] focus:border-[#C9825B]"
           placeholder="Repeat your password"
         />
