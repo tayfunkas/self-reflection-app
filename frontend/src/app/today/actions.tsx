@@ -52,7 +52,7 @@ import prisma from "@/lib/prisma";
 
 const MAX_RESPONSE_LENGTH = 5000;
 
-export async function submitResponse(formData: FormData) {
+async function getExistingUserId() {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -65,6 +65,20 @@ export async function submitResponse(formData: FormData) {
     redirect("/login");
   }
 
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true },
+  });
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  return user.id;
+}
+
+export async function submitResponse(formData: FormData) {
+  const userId = await getExistingUserId();
   const deliveryIdValue = formData.get("deliveryId");
   const responseTextValue = formData.get("responseText");
 
@@ -115,15 +129,88 @@ export async function submitResponse(formData: FormData) {
     throw new Error("You have already answered this question");
   }
 
-  if (delivery.status !== "active") {
-    throw new Error("This question is no longer active");
-  }
-
   if (delivery.expiresAt && delivery.expiresAt < new Date()) {
     throw new Error("This question has expired");
   }
 
   await createResponseForDelivery(deliveryId, responseText);
+
+  revalidatePath("/today");
+}
+
+export async function updateResponse(formData: FormData) {
+  const userId = await getExistingUserId();
+  const deliveryIdValue = formData.get("deliveryId");
+  const responseTextValue = formData.get("responseText");
+
+  const deliveryId = Number(deliveryIdValue);
+
+  if (!Number.isInteger(deliveryId) || deliveryId <= 0) {
+    throw new Error("Invalid delivery id");
+  }
+
+  if (typeof responseTextValue !== "string") {
+    throw new Error("Invalid response");
+  }
+
+  const responseText = responseTextValue.trim();
+
+  if (responseText.length === 0) {
+    throw new Error("Reflection cannot be empty");
+  }
+
+  if (responseText.length > MAX_RESPONSE_LENGTH) {
+    throw new Error("Reflection is too long");
+  }
+
+  const delivery = await prisma.questionDelivery.findUnique({
+    where: { id: deliveryId },
+    select: {
+      id: true,
+      userId: true,
+      expiresAt: true,
+      status: true,
+      response: {
+        select: {
+          id: true,
+          userId: true,
+        },
+      },
+    },
+  });
+
+  if (!delivery) {
+    throw new Error("Delivery not found");
+  }
+
+  if (delivery.userId !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!delivery.response) {
+    throw new Error("No reflection found for this question");
+  }
+
+  if (delivery.response.userId !== userId) {
+    throw new Error("Unauthorized");
+  }
+
+  if (delivery.status !== "answered") {
+    throw new Error("This reflection can no longer be edited");
+  }
+
+  if (delivery.expiresAt && delivery.expiresAt < new Date()) {
+    throw new Error("This reflection can no longer be edited");
+  }
+
+  await prisma.response.update({
+    where: {
+      id: delivery.response.id,
+    },
+    data: {
+      responseText,
+    },
+  });
 
   revalidatePath("/today");
 }

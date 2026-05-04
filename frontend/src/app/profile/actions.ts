@@ -80,9 +80,10 @@ export async function updatePreferences(formData: FormData) {
 
 "use server";
 
-import { auth } from "../../../auth";
+import { auth, signOut } from "../../../auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import bcrypt from "bcryptjs";
 
 const MAX_NAME_LENGTH = 80;
 const MAX_CITY_LENGTH = 80;
@@ -199,4 +200,73 @@ export async function updatePreferences(formData: FormData) {
   });
 
   redirect("/profile");
+}
+
+export type DeleteAccountState = {
+  error?: string;
+};
+
+export async function deleteAccount(
+  _previousState: DeleteAccountState,
+  formData: FormData
+): Promise<DeleteAccountState> {
+  const userId = await getUserId();
+
+  const password = formData.get("password")?.toString() || "";
+  const confirmation = formData.get("confirmation")?.toString() || "";
+
+  if (confirmation !== "DELETE") {
+    return {
+      error: "Please type DELETE to confirm account deletion.",
+    };
+  }
+
+  if (!password) {
+    return {
+      error: "Please enter your password.",
+    };
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      email: true,
+      passwordHash: true,
+    },
+  });
+
+  if (!user || !user.passwordHash) {
+    return {
+      error: "Could not verify your account.",
+    };
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user.passwordHash);
+
+  if (!isValidPassword) {
+    return {
+      error: "Password is incorrect.",
+    };
+  }
+
+  await prisma.$transaction([
+    prisma.verificationToken.deleteMany({
+      where: {
+        identifier: user.email,
+      },
+    }),
+  
+    prisma.user.delete({
+      where: {
+        id: user.id,
+      },
+    }),
+  ]);
+  
+  await signOut({
+    redirectTo: "/",
+  });
+
+  return {};
 }

@@ -164,7 +164,9 @@ import ReflectionHistoryList from "./reflection-history-list";
 
 type HistoryItem = {
   id: number;
-  submittedAt: Date;
+  deliveryId: number;
+  questionId: number;
+  submittedAt: Date | string;
   responseText: string;
   question: {
     text: string;
@@ -203,6 +205,8 @@ export default async function HistoryPage() {
 
   const historyItems: HistoryItem[] = responses.map((item) => ({
     id: item.id,
+    deliveryId: item.deliveryId,
+    questionId: item.questionId,
     submittedAt: item.submittedAt,
     responseText: item.responseText,
     question: {

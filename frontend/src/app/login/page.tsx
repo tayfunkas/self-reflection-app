@@ -2,6 +2,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "../../../auth";
 import { LoginForm } from "./login-form";
+import prisma from "@/lib/prisma";
+
 
 type LoginPageProps = {
   searchParams: Promise<{
@@ -14,7 +16,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const session = await auth();
 
   if (session?.user?.id) {
-    redirect("/today");
+    const userId = Number(session.user.id);
+
+    if (Number.isInteger(userId) && userId > 0) {
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true },
+      });
+
+      if (existingUser) {
+        redirect("/today");
+      }
+    }
   }
 
   const { verified, passwordReset } = await searchParams;

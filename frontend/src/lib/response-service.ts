@@ -102,9 +102,9 @@ export async function createResponseForDelivery(
     throw new Error("A response already exists for this delivery");
   }
 
-  if (delivery.status !== "active") {
+  /*if (delivery.status !== "active") {
     throw new Error("This question is no longer active");
-  }
+  }*/
 
   const now = new Date();
 

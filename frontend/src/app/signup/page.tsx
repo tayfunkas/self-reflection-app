@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { SignupForm } from "./signup-form";
+import { redirect } from "next/navigation";
+import { auth } from "../../../auth";
 
-export default function SignupPage() {
+export default async function SignupPage() {
+  const session = await auth();
+
+  if (session?.user?.id) {
+    redirect("/today");
+  }
+
   return (
     <main className="mx-auto flex min-h-[calc(100vh-73px)] max-w-md items-center px-6 py-16">
       <section className="w-full rounded-3xl border border-[#E8DDD3] bg-[#FFF9F5] p-8 shadow-sm">

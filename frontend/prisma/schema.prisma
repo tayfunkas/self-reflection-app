@@ -27,7 +27,7 @@ model User {
 
   language            String             @default("en")
 
-  marketingEmails     Boolean            @default(false) @map("marketing_emails")
+  marketingEmails     Boolean            @default(true) @map("marketing_emails")
   dailyQuestionEmails Boolean            @default(true) @map("daily_question_emails")
   dailyReflectionTime String             @default("00:00") @map("daily_reflection_time")
 
@@ -99,6 +99,7 @@ model Question {
 
   questionDeliveries QuestionDelivery[]
   responses          Response[]
+  stats              QuestionStats?
 
   @@index([category])
   @@index([depthLevel])
@@ -141,4 +142,15 @@ model Response {
   @@index([questionId])
   @@index([submittedAt])
   @@map("responses")
+}
+
+model QuestionStats {
+  questionId            Int      @id @map("question_id")
+  deliveredCount        Int      @default(0) @map("delivered_count")
+  answeredCount         Int      @default(0) @map("answered_count")
+  responseDeletedCount  Int      @default(0) @map("response_deleted_count")
+
+  question              Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@map("question_stats")
 }

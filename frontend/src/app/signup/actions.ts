@@ -75,6 +75,7 @@ import { hashPassword } from "@/lib/password";
 import { createEmailVerificationToken } from "@/lib/verification-token";
 import { sendVerificationEmail } from "@/lib/email";
 import { signupRateLimit, getRateLimitIdentifier } from "@/lib/rate-limit";
+import { auth } from "../../../auth";
 
 export type SignupState = {
   error?: string;
@@ -92,6 +93,12 @@ export async function signup(
   _prevState: SignupState,
   formData: FormData
 ): Promise<SignupState> {
+  const session = await auth();
+
+  if (session?.user?.id) {
+    redirect("/today");
+  }
+
   const identifier = await getRateLimitIdentifier("signup");
   const { success } = await signupRateLimit.limit(identifier);
 
