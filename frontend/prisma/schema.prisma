@@ -40,6 +40,10 @@ model User {
   questionDeliveries  QuestionDelivery[]
   responses           Response[]
 
+  reflectionInsights  ReflectionInsight[]
+
+  plusInterest Boolean @default(false) @map("plus_interest")
+
   @@map("users")
 }
 
@@ -114,6 +118,7 @@ model QuestionDelivery {
   deliveredAt DateTime             @default(now()) @map("delivered_at")
   expiresAt   DateTime?            @map("expires_at")
   status      String
+  emailSentAt DateTime? @map("email_sent_at")
 
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   question    Question             @relation(fields: [questionId], references: [id], onDelete: Cascade)
@@ -153,4 +158,21 @@ model QuestionStats {
   question              Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
 
   @@map("question_stats")
+}
+
+model ReflectionInsight {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+
+  type      String   @default("first_five")
+  content   String   @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  viewedAt  DateTime? @map("viewed_at")
+
+  @@index([userId])
+  @@unique([userId, type])
+  @@map("reflection_insights")
 }

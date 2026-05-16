@@ -1,47 +1,3 @@
-/*import { Resend } from "resend";
-
-const resend = new Resend(process.env.RESEND_API_KEY);
-
-function getAppUrl() {
-  const appUrl = process.env.APP_URL;
-  if (!appUrl) {
-    throw new Error("APP_URL is not set.");
-  }
-  return appUrl;
-}
-
-export async function sendVerificationEmail(email: string, token: string) {
-  const verifyUrl = `${getAppUrl()}/verify-email?token=${encodeURIComponent(token)}`;
-
-  const { error } = await resend.emails.send({
-    from: process.env.EMAIL_FROM!,
-    to: [email],
-    subject: "Verify your email",
-    html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1f2937;">
-        <h2>Verify your email</h2>
-        <p>Welcome to WithinYou.</p>
-        <p>Please verify your email before writing and saving reflections.</p>
-        <p>
-          <a
-            href="${verifyUrl}"
-            style="display:inline-block;padding:12px 18px;background:#7A5C49;color:#ffffff;text-decoration:none;border-radius:8px;"
-          >
-            Verify email
-          </a>
-        </p>
-        <p>If the button does not work, use this link:</p>
-        <p>${verifyUrl}</p>
-        <p>This link expires in 24 hours.</p>
-      </div>
-    `,
-  });
-
-  if (error) {
-    throw new Error(`Failed to send verification email: ${error.message}`);
-  }
-}*/
-
 import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -60,7 +16,7 @@ export async function sendVerificationEmail(email: string, token: string) {
   )}`;
 
   const { error } = await resend.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from: process.env.EMAIL_ACCOUNT_FROM!,
     to: [email],
     subject: "Verify your email",
     html: `
@@ -101,7 +57,7 @@ export async function sendPasswordResetEmail(email: string, token: string) {
   )}`;
 
   const { error } = await resend.emails.send({
-    from: process.env.EMAIL_FROM!,
+    from: process.env.EMAIL_ACCOUNT_FROM!,
     to: [email],
     subject: "Reset your password",
     html: `
@@ -132,5 +88,58 @@ export async function sendPasswordResetEmail(email: string, token: string) {
 
   if (error) {
     throw new Error(`Failed to send password reset email: ${error.message}`);
+  }
+}
+
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+export async function sendDailyQuestionEmail(email: string, questionText: string) {
+  const todayUrl = `${getAppUrl()}/today`;
+  const safeQuestionText = escapeHtml(questionText);
+
+  const { error } = await resend.emails.send({
+    from: process.env.EMAIL_DAILY_FROM!,
+    to: [email],
+    subject: "Your reflection for today",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #5F4636;">
+        <img
+          src="https://www.withinyouapp.com/logo-withinyou.png"
+          alt="WithinYou"
+          width="72"
+          style="display:block;margin-bottom:24px;"
+        />
+
+        <h2 style="font-weight:500;">Your question for today</h2>
+
+        <p style="font-size:18px; line-height:1.7;">
+          ${safeQuestionText}
+        </p>
+
+        <p>
+          <a
+            href="${todayUrl}"
+            style="display:inline-block;padding:12px 18px;background:#7A5C49;color:#ffffff;text-decoration:none;border-radius:8px;"
+          >
+            Write your reflection
+          </a>
+        </p>
+
+        <p style="color:#8A6F5C;font-size:14px;">
+          A quiet question, once a day.
+        </p>
+      </div>
+    `,
+  });
+
+  if (error) {
+    throw new Error(`Failed to send daily question email: ${error.message}`);
   }
 }
